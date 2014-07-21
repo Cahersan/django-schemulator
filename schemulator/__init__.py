@@ -26,8 +26,8 @@ FIELDS = {
         "FloatField":"JSONDecimalField",
         "ImageField":"",
         "IntegerField":"JSONIntegerField",
-        "IPAddressField":"",
-        "GenericIPAddressField":"",
+        "IPAddressField":"JSONIPAddressField",
+        "GenericIPAddressField":"JSONIPAddressField",
         "MultipleChoiceField":"",
         "TypedMultipleChoiceField":"",
         "NullBooleanField":"",
@@ -59,7 +59,9 @@ KEYWORDS = {
     "min_value":"minimum",
     "max_value":"maximum",
     #Choice-specific keyword
-    "choices":"content"
+    "choices":"content",
+    #GenericIPAddressfield
+    "protocol":"format"
 }
 
 def form_to_schema(form):
@@ -88,12 +90,14 @@ def form_to_schema(form):
                 # JSONDocumentField 
                 if kw is "choices":
                     content = [JSONDocumentField(enum=content)]
+                if kw is "protocol":
+                    import ipdb; ipdb.set_trace()
+                    content = f.protocol
                 setattr(jschema_field, KEYWORDS[kw], content)
 
         # Setting the JSON Schema field within the JSON Schema
         setattr(JSchema, "field_" + str(field_count), jschema_field)
         field_count+=1
-        #import ipdb; ipdb.set_trace()
 
     schema = JSchema({})._schema
     
