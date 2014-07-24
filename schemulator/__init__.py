@@ -60,8 +60,6 @@ KEYWORDS = {
     "max_value":"maximum",
     #Choice-specific keyword
     "choices":"content",
-    #GenericIPAddressfield
-    "protocol":"format"
 }
 
 def form_to_schema(form):
@@ -82,6 +80,14 @@ def form_to_schema(form):
         mod = import_module('json_schema_toolkit.document', FIELDS[field_type])
         jschema_field = getattr(mod, FIELDS[field_type])()
         
+        # Special case for GenericIPAddressField, as protocol is not a field
+        # attribute, and must be induced from the validator.
+        if field_type is "GenericIPAddressField":
+            #import ipdb; ipdb.set_trace()
+            val = str(f.validators[0]) 
+            content = 'ipv6' if 'ipv6' in val else 'ipv4'
+            setattr(jschema_field, 'protocol', content)
+        
         # Setup of JSON Schema keywords 
         for kw in KEYWORDS.keys():
             if hasattr(f, kw):
@@ -90,9 +96,6 @@ def form_to_schema(form):
                 # JSONDocumentField 
                 if kw is "choices":
                     content = [JSONDocumentField(enum=content)]
-                if kw is "protocol":
-                    import ipdb; ipdb.set_trace()
-                    content = f.protocol
                 setattr(jschema_field, KEYWORDS[kw], content)
 
         # Setting the JSON Schema field within the JSON Schema
