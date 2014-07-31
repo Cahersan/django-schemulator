@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django import forms
 
+from jsonschema import validate, Draft4Validator, ValidationError
+
 from schemulator import form_to_schema, field_to_schema, schema_to_form, schema_to_field
  
 
@@ -126,10 +128,10 @@ choice_field = forms.ChoiceField(   label="Choice Field",
                                     required=False)
 
 choice_field_js = {
-    'type': 'array', 
+    'type': 'string', 
     'title': 'Choice Field',
     'description': 'This is a choice field', 
-    'items': [{'enum': ["choice_1", "choice_2", "choice_3"]}],
+    'enum': ["choice_1", "choice_2", "choice_3"],
     'optional': True,
 }
 
@@ -159,8 +161,9 @@ gen_ip_field_js = {
 }
 
 # DATE FIELD
-date_field = forms.DateField(  label="Date Field",
-                               help_text="This is a date field")
+date_field = forms.DateField(   label="Date Field",
+                                help_text="This is a date field",
+                                required=False)
 
 date_field_js = {
     'type': 'string', 
@@ -168,9 +171,24 @@ date_field_js = {
     'description': 'This is a date field', 
 }
 
+# TIME FIELD
+time_field = forms.TimeField(   label="Time Field",
+                                help_text="This is a time field",
+                                required=False)
+
+
+time_field_js = {
+    'type': 'string', 
+    'title': 'Time Field',
+    'description': 'This is a time field', 
+    'pattern':"^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$|^([0-1]?[0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$"
+}
+
 # DATE TIME FIELD
 date_time_field = forms.DateTimeField(  label="Date-Time Field",
-                                        help_text="This is a date-time field")
+                                        help_text="This is a date-time field",
+                                        required=False)
+
 
 date_time_field_js = {
     'type': 'string', 
@@ -191,13 +209,24 @@ def dict_in_dict(d, subset_d):
 class FormToSchemaTestCase(TestCase):
     
     def setUp(self):
-        TestForm.base_fields = {} 
+        TestForm.base_fields = {'boolean_field':boolean_field,
+                                'text_field':text_field,
+                                'email_field':email_field,
+                                'decimal_field':decimal_field,
+                                'float_field':float_field,
+                                'integer_field':integer_field,
+                                'choice_field':choice_field,
+                                'ip_field':ip_field,
+                                'gen_ip_field':gen_ip_field,
+                                'date_field':date_field,
+                                'time_field':time_field,
+                                'date_time_field':date_time_field,
+                            }
 
     def test_schema(self):
-        TestForm.base_fields = {'boolean_field':boolean_field,
-                                'text_field':text_field, }
         schema = form_to_schema(TestForm)
-    
+        self.assertIsNone(Draft4Validator.check_schema(schema))
+
     def test_boolean_field(self):
         field_schema = field_to_schema(boolean_field)
         self.assertTrue(dict_in_dict(field_schema, boolean_field_js))
@@ -224,11 +253,8 @@ class FormToSchemaTestCase(TestCase):
         
     def test_choice_field(self):
         field_schema = field_to_schema(choice_field)
-        choice_field_copy = choice_field_js.copy()
-        it1 = choice_field_copy.pop('items')[0]
-        it2 = field_schema.pop('items')[0]
-        self.assertTrue(dict_in_dict(it2, it1))
-        self.assertTrue(dict_in_dict(field_schema, choice_field_copy))
+        validate('choice_1', field_schema)
+        self.assertTrue(dict_in_dict(field_schema, choice_field_js))
         
     def test_ip_field(self):
         field_schema = field_to_schema(ip_field)
@@ -237,15 +263,49 @@ class FormToSchemaTestCase(TestCase):
     def test_gen_ip_field(self):
         field_schema = field_to_schema(gen_ip_field)
         self.assertTrue(dict_in_dict(field_schema, gen_ip_field_js))
-        
+
     def test_date_field(self):
         field_schema = field_to_schema(date_field)
         self.assertTrue(dict_in_dict(field_schema, date_field_js))
+
+    def test_date_field_validation(self):
+        field_schema = field_to_schema(date_field)
+        self.assertIsNone(validate('2006-10-25', field_schema))
+        self.assertIsNone(validate('10/25/2006', field_schema))
+        self.assertIsNone(validate('10/25/06', field_schema))
+        # Try/Except clause has to be used instead of assertRaises() because 
+        # validate() itself doesn't raise ValidationError.
+        try:
+            validate('128-4-5269', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+        try:
+            validate('foo', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
         
+    def test_time_field(self):
+        field_schema = field_to_schema(time_field)
+        self.assertTrue(dict_in_dict(field_schema, time_field_js))
+
+    def test_time_field_validation(self):
+        field_schema = field_to_schema(time_field)
+        self.assertIsNone(validate('10:00:30', field_schema))
+        self.assertIsNone(validate('10:00', field_schema))
+        # Try/Except clause has to be used instead of assertRaises() because 
+        # validate() itself doesn't raise ValidationError.
+        try:
+            validate('10:70', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+        try:
+            validate('foo', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+    
     def test_date_time_field(self):
         field_schema = field_to_schema(date_time_field)
         self.assertTrue(dict_in_dict(field_schema, date_time_field_js))
-        
 
 class SchemaToFormTestCase(TestCase):
 
@@ -277,11 +337,7 @@ class SchemaToFormTestCase(TestCase):
     def test_choice_field(self):
         field = schema_to_field(choice_field_js)
         field_schema = field_to_schema(choice_field)
-        choice_field_copy = choice_field_js.copy()
-        it1 = choice_field_copy.pop('items')[0]
-        it2 = field_schema.pop('items')[0]
-        self.assertTrue(dict_in_dict(it2, it1))
-        self.assertTrue(dict_in_dict(field_to_schema(field), choice_field_copy))
+        self.assertTrue(dict_in_dict(field_to_schema(field), choice_field_js))
         
     def test_ipv4_field(self):
         ip_field_js['format'] = 'ipv4'

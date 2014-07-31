@@ -16,7 +16,7 @@ FIELDS = {
         #Django Forms built-in Field classes
         "BooleanField":"JSONBooleanField",
         "CharField":"JSONStringField",
-        "ChoiceField":"JSONListField",
+        "ChoiceField":"JSONStringField",
         "TypedChoiceField":"",
         "DateField":"JSONDateField",
         "DateTimeField":"JSONDateTimeField",
@@ -34,7 +34,7 @@ FIELDS = {
         "NullBooleanField":"",
         "RegexField":"",
         "SlugField":"",
-        "TimeField":"",
+        "TimeField":"JSONTimeField",
         "URLField":"",
         #Django forms slightly complex built-in Field classes
         "ComboField":"",
@@ -60,7 +60,7 @@ KEYWORDS = {
     "min_value":"minimum",
     "max_value":"maximum",
     #Choice-specific keyword
-    "choices":"content",
+    "choices":"enum",
 }
 
 def field_to_schema(field):
@@ -83,12 +83,8 @@ def field_to_schema(field):
     for (field_kw, jschema_kw) in KEYWORDS.items():
         if hasattr(field, field_kw):
             value = getattr(field, field_kw)
-            # Special case for choices, as these are described with a simple
-            # JSONDocumentField 
-            if field_kw == "choices":
-                value = [JSONDocumentField(enum=value)]
-            if field_kw == "required":
-                value = not value
+            # Special case, optional != required
+            if field_kw == "required": value = not value
             setattr(jschema_field, jschema_kw, value)
 
     return jschema_field._generate_schema()
@@ -145,13 +141,12 @@ def schema_to_field(schema):
             if schema['format'] == 'ipv6':
                 field_type = 'GenericIPAddressField'
                 kwargs['protocol']='ipv6'
+        if 'enum' in schema:
+            field_type = 'ChoiceField'
     elif jschema_type == 'integer':
         field_type = 'IntegerField'
     elif jschema_type == 'number':
         field_type = 'FloatField'
-    elif jschema_type == 'array':
-        field_type = 'ChoiceField'
-        if 'items' in schema: kwargs['choices'] = schema['items'][0]['enum']
 
     mod = import_module('django.forms', field_type)
     form_field = getattr(mod, field_type)
