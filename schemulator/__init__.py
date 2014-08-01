@@ -63,6 +63,20 @@ KEYWORDS = {
     "choices":"enum",
 }
 
+TYPES = {
+    'boolean':'BooleanField',
+    'integer':'IntegerField',
+    'number':'FloatField',
+    'string':'CharField'
+}
+
+FORMATS = {
+    'date-time':'DateTimeField',
+    'email':'EmailField',
+    'ipv4':'GenericIPAddressField',
+    'ipv6':'GenericIPAddressField',
+}
+
 def field_to_schema(field):
     """
     """
@@ -119,10 +133,10 @@ def schema_to_field(schema):
     field: that is, any entry of the 'properties' keyword
     """
 
-    jschema_type = schema['type']
+    # This block sets the value of relevant field keyword arguments
+    
     kwargs = {}
 
-    # This block sets the value of relevant field keyword arguments
     for (field_kw, jschema_kw) in KEYWORDS.items():
         if jschema_kw in schema:
             value = schema[jschema_kw]
@@ -133,30 +147,17 @@ def schema_to_field(schema):
     # This block decides upon which form field should be used. This can be 
     # explicitly specified in a JSON schema via the '__django_form_field_cls'
     # keyword
+
     if '__django_form_field_cls' in schema:
         field_type = schema['__django_form_field_cls']
     elif 'enum' in schema:
         field_type = 'ChoiceField'
-    else:
-        # In case '__django_form_field_cls' keyword is not specified
-        if jschema_type == 'boolean':
-            field_type = 'BooleanField'  
-        elif jschema_type == 'string':
-            field_type = 'CharField'  
-            if 'format' in schema:
-                if schema['format'] == 'email':
-                    field_type = 'EmailField'
-                if schema['format'] == 'date-time':
-                    field_type = 'DateTimeField'
-                if schema['format'] == 'ipv4':
-                    field_type = 'GenericIPAddressField'
-                if schema['format'] == 'ipv6':
-                    field_type = 'GenericIPAddressField'
-                    kwargs['protocol']='ipv6'
-        elif jschema_type == 'integer':
-            field_type = 'IntegerField'
-        elif jschema_type == 'number':
-            field_type = 'FloatField'
+    elif 'format' in schema and schema['type'] == 'string':
+        field_type = FORMATS[schema['format']]
+        # Special case for ipv6
+        if schema['format'] == 'ipv6': kwargs['protocol']='ipv6'
+    else: 
+        field_type = TYPES[schema['type']]
 
     mod = import_module('django.forms', field_type)
     form_field = getattr(mod, field_type)
