@@ -135,6 +135,8 @@ def schema_to_field(schema):
     # keyword
     if '__django_form_field_cls' in schema:
         field_type = schema['__django_form_field_cls']
+    elif 'enum' in schema:
+        field_type = 'ChoiceField'
     else:
         # In case '__django_form_field_cls' keyword is not specified
         if jschema_type == 'boolean':
@@ -151,8 +153,6 @@ def schema_to_field(schema):
                 if schema['format'] == 'ipv6':
                     field_type = 'GenericIPAddressField'
                     kwargs['protocol']='ipv6'
-            if 'enum' in schema:
-                field_type = 'ChoiceField'
         elif jschema_type == 'integer':
             field_type = 'IntegerField'
         elif jschema_type == 'number':
