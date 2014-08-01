@@ -4,21 +4,10 @@ from django import forms
 from jsonschema import validate, Draft4Validator, ValidationError
 
 from schemulator import form_to_schema, field_to_schema, schema_to_form, schema_to_field
- 
 
-# A form to test 
-TestForm = forms.Form()
-
-# A schema to test
-schema = {
-    'title': u'JSON Schema',
-    'description': u'This is a JSON Schema describing a form',
-    'type': 'object', 
-    'properties': {}
-}
 
 # These are FIELDS to test within the form and their equivalent representation
-# as PROPERTIES within the schema
+# as PROPERTIES within the JSON schema
 
 #BOOLEAN FIELD
 boolean_field = forms.BooleanField( label="Boolean Field",
@@ -197,6 +186,57 @@ date_time_field_js = {
     'format': 'date-time', 
 }
 
+# SLUG FIELD
+slug_field = forms.SlugField(   label="Slug Field",
+                                help_text="This is a slug field",
+                                required=False,
+                                max_length=100,
+                                min_length=10)
+
+
+slug_field_js = {
+    'type': 'string', 
+    'title': 'Slug Field',
+    'description': 'This is a slug field', 
+    'maxLength':100,
+    'minLength':10
+}
+
+# URL FIELD
+url_field = forms.URLField( label="URL Field",
+                            help_text="This is an URL field",
+                            required=False,
+                            max_length=100,
+                            min_length=0)
+
+
+url_field_js = {
+    'type': 'string', 
+    'title': 'URL Field',
+    'description': 'This is an URL field', 
+    'maxLength':100,
+    'minLength':0
+}
+
+# A FORM
+class TestForm(forms.Form):
+    boolean_field = boolean_field
+    text_field = text_field
+    email_field = email_field
+    decimal_field = decimal_field
+    float_field = float_field 
+    integer_field = integer_field
+    choice_field = choice_field
+    ip_field = ip_field
+    gen_ip_field = gen_ip_field
+    date_field = date_field
+    time_field = time_field
+    date_time_field = date_time_field
+    slug_field = slug_field
+    url_field = url_field
+
+# An instance of TestForm to work with
+test_form = TestForm()
 
 def dict_in_dict(d, subset_d):
     """
@@ -209,22 +249,10 @@ def dict_in_dict(d, subset_d):
 class FormToSchemaTestCase(TestCase):
     
     def setUp(self):
-        TestForm.base_fields = {'boolean_field':boolean_field,
-                                'text_field':text_field,
-                                'email_field':email_field,
-                                'decimal_field':decimal_field,
-                                'float_field':float_field,
-                                'integer_field':integer_field,
-                                'choice_field':choice_field,
-                                'ip_field':ip_field,
-                                'gen_ip_field':gen_ip_field,
-                                'date_field':date_field,
-                                'time_field':time_field,
-                                'date_time_field':date_time_field,
-                            }
+        pass
 
     def test_schema(self):
-        schema = form_to_schema(TestForm)
+        schema = form_to_schema(test_form)
         self.assertIsNone(Draft4Validator.check_schema(schema))
 
     def test_boolean_field(self):
@@ -253,7 +281,6 @@ class FormToSchemaTestCase(TestCase):
         
     def test_choice_field(self):
         field_schema = field_to_schema(choice_field)
-        validate('choice_1', field_schema)
         self.assertTrue(dict_in_dict(field_schema, choice_field_js))
         
     def test_ip_field(self):
@@ -307,12 +334,67 @@ class FormToSchemaTestCase(TestCase):
         field_schema = field_to_schema(date_time_field)
         self.assertTrue(dict_in_dict(field_schema, date_time_field_js))
 
+    def test_slug_field(self):
+        field_schema = field_to_schema(slug_field)
+        self.assertTrue(dict_in_dict(field_schema, slug_field_js))
+
+    def test_slug_field_validation(self):
+        field_schema = field_to_schema(slug_field)
+        self.assertIsNone(validate('th1s-is-a-v4l1d-slug', field_schema))
+        try:
+            validate('this_IS_not:a/valid-slug!', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+
+    def test_url_field(self):
+        field_schema = field_to_schema(url_field)
+        self.assertTrue(dict_in_dict(field_schema, url_field_js))
+
+    def test_url_field_validation(self):
+        field_schema = field_to_schema(url_field)
+
+        self.assertIsNone(validate('http://example.org/resource.txt', field_schema))
+        self.assertIsNone(validate('https://localhost:8000', field_schema))
+        self.assertIsNone(validate('http://209.85.255.255', field_schema))
+        self.assertIsNone(validate('ftp://example.org/', field_schema))
+
+        try:
+            validate('http://notvalid', field_schema)
+            validate('htp://notvalid.com', field_schema)
+            validate('localhost', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+
 class SchemaToFormTestCase(TestCase):
 
-    TestSchema = {}
-    
     def setUp(self):
-        pass
+        test_form.fields = {'boolean_field':boolean_field,
+                            'text_field':text_field,
+                            'email_field':email_field,
+                            'decimal_field':decimal_field,
+                            'float_field':float_field,
+                            'integer_field':integer_field,
+                            'choice_field':choice_field,
+                            'ip_field':ip_field,
+                            'gen_ip_field':gen_ip_field,
+                            'date_field':date_field,
+                            'time_field':time_field,
+                            'date_time_field':date_time_field,
+                            'slug_field':slug_field,
+                            'url_field':url_field,
+                        }
+
+    def test_form_to_schema_to_form(self):
+        """
+        Translates a form to a schema and back to a form and checks if the 
+        form fields are the same in both forms. In this case, the __django_form_field_cls
+        is being used as it is set in the form_to_schema function. 
+        """
+        schema = form_to_schema(test_form)
+        recovered_form = schema_to_form(schema)
+        rffi = [i[1].__class__.__name__ for i in sorted(recovered_form.fields.items())]
+        tffi = [i[1].__class__.__name__ for i in sorted(test_form.fields.items())]
+        self.assertEquals(rffi, tffi)
 
     def test_boolean_field(self):
         field = schema_to_field(boolean_field_js)
@@ -352,4 +434,13 @@ class SchemaToFormTestCase(TestCase):
     def test_date_time_field(self):
         field = schema_to_field(date_time_field_js)
         self.assertTrue(dict_in_dict(field_to_schema(field), date_time_field_js))
+    
+    def test_slug_field(self):
+        field = schema_to_field(slug_field_js)
+        self.assertTrue(dict_in_dict(field_to_schema(field), slug_field_js))
+    
+    def test_url_field(self):
+        field = schema_to_field(url_field_js)
+        self.assertTrue(dict_in_dict(field_to_schema(field), url_field_js))
+
 
