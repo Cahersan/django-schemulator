@@ -3,6 +3,7 @@ from importlib import import_module
 from django import forms
 
 from json_schema_toolkit.document import JSONDocument, JSONDocumentField
+import wtforms
 
 
 """ 
@@ -13,38 +14,60 @@ Django Schemulator
 # {FORM : JSON_SCHEMA}
 
 FIELDS = {
-        #Django Forms built-in Field classes
-        "BooleanField":"JSONBooleanField",
-        "CharField":"JSONStringField",
-        "ChoiceField":"JSONStringField",
-        "TypedChoiceField":"",
-        "DateField":"JSONDateField",
-        "DateTimeField":"JSONDateTimeField",
-        "DecimalField":"JSONDecimalField",
-        "EmailField":"JSONEmailField",
-        "FileField":"",
-        "FilePathField":"",
-        "FloatField":"JSONDecimalField",
-        "ImageField":"",
-        "IntegerField":"JSONIntegerField",
-        "IPAddressField":"JSONIPAddressField",
-        "GenericIPAddressField":"JSONIPAddressField",
-        "MultipleChoiceField":"",
-        "TypedMultipleChoiceField":"",
-        "NullBooleanField":"",
-        "RegexField":"",
-        "SlugField":"JSONSlugField",
-        "TimeField":"JSONTimeField",
-        "URLField":"JSONURLField",
-        #Django forms slightly complex built-in Field classes
-        "ComboField":"",
-        "MultiValueField":"",
-        "SplitDateTimeField":"",
-        #Fields which handle relationships
-        "ModelChoiceField":"",
-        "ModelMultipleChoiceField":"",
-        #Custom Fields
-        "Field":"",
+    #Django Forms built-in Field classes
+    "BooleanField":"JSONBooleanField",
+    "CharField":"JSONStringField",
+    "ChoiceField":"JSONStringField",
+    "TypedChoiceField":"",
+    "DateField":"JSONDateField",
+    "DateTimeField":"JSONDateTimeField",
+    "DecimalField":"JSONDecimalField",
+    "EmailField":"JSONEmailField",
+    "FileField":"",
+    "FilePathField":"",
+    "FloatField":"JSONDecimalField",
+    "ImageField":"",
+    "IntegerField":"JSONIntegerField",
+    "IPAddressField":"JSONIPAddressField",
+    "GenericIPAddressField":"JSONIPAddressField",
+    "MultipleChoiceField":"",
+    "TypedMultipleChoiceField":"",
+    "NullBooleanField":"",
+    "RegexField":"",
+    "SlugField":"JSONSlugField",
+    "TimeField":"JSONTimeField",
+    "URLField":"JSONURLField",
+    #Django forms slightly complex built-in Field classes
+    "ComboField":"",
+    "MultiValueField":"",
+    "SplitDateTimeField":"",
+    #Fields which handle relationships
+    "ModelChoiceField":"",
+    "ModelMultipleChoiceField":"",
+    #Custom Fields
+    "Field":"",
+}
+
+WTFIELDS = {
+    "BooleanField":"JSONBooleanField",
+    "DateField":"JSONDateField",
+    "DateTimeField":"JSONDateTimeField",
+    "DecimalField":"JSONDecimalField",
+    "Field":"",
+    "FileField":"",
+    "FloatField":"JSONDecimalField",
+    "FormField":"",
+    "HiddenField":"",
+    "IntegerField":"JSONIntegerField",
+    "PasswordField":"",
+    "RadioField":"",
+    "SelectField":"JSONStringField",
+    "SelectFieldBase":"",
+    "SelectMultipleField":"",
+    "StringField":"JSONStringField",
+    "SubmitField":"",
+    "TextAreaField":"",
+    "TextField":"",
 }
 
 KEYWORDS = {
@@ -77,9 +100,63 @@ FORMATS = {
     'ipv6':'GenericIPAddressField',
 }
 
+
+def wtfield_to_schema(field):
+    """
+    """
+    field_type = field.__class__.__name__  
+        
+    mod = import_module('json_schema_toolkit.document', WTFIELDS[field_type])
+    jschema_field = getattr(mod, WTFIELDS[field_type])()
+    
+    if field_type == 'SelectField':
+        setattr(jschema_field, 'enum', field.choices) 
+
+    # Depending on the validators the value of some keywords may change, as well
+    # as the choice of jschema_field
+    #import ipdb; ipdb.set_trace()
+    for validator in  field.validators:
+        val = validator.__class__.__name__
+        
+        if val == 'Optional':
+            setattr(jschema_field, 'optional', True)
+        if val == 'Email':
+            jschema_field = getattr(mod, 'JSONEmailField')()
+            setattr(jschema_field, 'format', 'email')
+        if val == 'NumberRange':
+            if validator.min is not None:
+                setattr(jschema_field, 'minimum', validator.min) 
+            if validator.max is not None:
+                setattr(jschema_field, 'maximum', validator.max)
+        if val == 'Length':
+            if validator.min is not -1:
+                setattr(jschema_field, 'minLength', validator.min) 
+            if validator.max is not -1:
+                setattr(jschema_field, 'maxLength', validator.max)
+        if val == 'IPAddress':
+            jschema_field = getattr(mod, 'JSONIPAddressField')()
+            if validator.ipv4: setattr(jschema_field, 'protocol', 'ipv4') 
+            if validator.ipv6: setattr(jschema_field, 'protocol', 'ipv6') 
+
+    # Setup of common JSON Schema keywords 
+    setattr(jschema_field, 'title', field.label.text)
+    setattr(jschema_field, 'description', field.description)
+    setattr(jschema_field, 'default', field.default)
+
+    schema = jschema_field._generate_schema()
+
+    schema['__wtforms_field_cls'] = field_type
+
+    return schema
+
 def field_to_schema(field):
     """
     """
+
+    if isinstance(field, wtforms.Field):
+        schema = wtfield_to_schema(field)
+        return schema
+
     field_type = field.__class__.__name__  
         
     mod = import_module('json_schema_toolkit.document', FIELDS[field_type])
@@ -117,13 +194,19 @@ def form_to_schema(form):
         'description':'This is a JSON Schema describing a form',
         'properties':{}
     }
+    
+    if isinstance(form, wtforms.Form):
+        for field in form:
 
-    # Loop through all form fields, get their JSON schema representation and
-    # add it to the schema properties
-    for (name, field) in form.fields.items():
+            field_schema = field_to_schema(field)
+            schema['properties'][field.name] = field_schema
+    else:
+        # Loop through all form fields, get their JSON schema representation and
+        # add it to the schema properties
+        for (name, field) in form.fields.items():
 
-        field_schema = field_to_schema(field)
-        schema['properties'][name] = field_schema
+            field_schema = field_to_schema(field)
+            schema['properties'][name] = field_schema
 
     return schema
 

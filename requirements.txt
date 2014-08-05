@@ -1,3 +1,4 @@
 -e git+https://github.com/Cahersan/json-document
 -e git+https://github.com/Cahersan/json-schema-toolkit
 jsonschema==2.3.0
+wtforms
