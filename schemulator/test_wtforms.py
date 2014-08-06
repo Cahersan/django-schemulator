@@ -314,7 +314,6 @@ class FormToSchemaTestCase(TestCase):
 #
     def test_slug_field(self):
         field_schema = field_to_schema(test_form.slug_field)
-        import ipdb; ipdb.set_trace()
         self.assertTrue(dict_in_dict(field_schema, slug_field_js))
 
     def test_slug_field_validation(self):

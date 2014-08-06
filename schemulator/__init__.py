@@ -109,39 +109,6 @@ def wtfield_to_schema(field):
     mod = import_module('json_schema_toolkit.document', WTFIELDS[field_type])
     jschema_field = getattr(mod, WTFIELDS[field_type])()
     
-    if field_type == 'SelectField':
-        setattr(jschema_field, 'enum', field.choices) 
-
-    # Depending on the validators the value of some keywords may change, as well
-    # as the choice of jschema_field
-    #import ipdb; ipdb.set_trace()
-    for validator in  field.validators:
-        val = validator.__class__.__name__
-        
-        if val == 'Optional':
-            setattr(jschema_field, 'optional', True)
-        if val == 'Email':
-            jschema_field = getattr(mod, 'JSONEmailField')()
-            setattr(jschema_field, 'format', 'email')
-        if val == 'NumberRange':
-            if validator.min is not None:
-                setattr(jschema_field, 'minimum', validator.min) 
-            if validator.max is not None:
-                setattr(jschema_field, 'maximum', validator.max)
-        if val == 'Length':
-            if validator.min is not -1:
-                setattr(jschema_field, 'minLength', validator.min) 
-            if validator.max is not -1:
-                setattr(jschema_field, 'maxLength', validator.max)
-        if val == 'IPAddress':
-            jschema_field = getattr(mod, 'JSONIPAddressField')()
-            if validator.ipv4: setattr(jschema_field, 'protocol', 'ipv4') 
-            if validator.ipv6: setattr(jschema_field, 'protocol', 'ipv6') 
-        if val == 'URL':
-            jschema_field = getattr(mod, 'JSONURLField')(pattern=validator.regex.pattern)
-        if val == 'Regexp':
-            jschema_field = getattr(mod, 'JSONStringField')(pattern=validator.regex.pattern)
-
     # Setup of common JSON Schema keywords 
     setattr(jschema_field, 'title', field.label.text)
     setattr(jschema_field, 'description', field.description)
@@ -150,6 +117,29 @@ def wtfield_to_schema(field):
     schema = jschema_field._generate_schema()
 
     schema['__wtforms_field_cls'] = field_type
+
+    if field_type == 'SelectField':
+        schema['enum'] = field.choices 
+
+    # Setup of jsonschema keywords depending on validators
+    for validator in  field.validators:
+        val = validator.__class__.__name__
+        
+        if val == 'Optional':
+            schema['optional']=True
+        if val == 'Email':
+            schema['format']='email'
+        if val == 'NumberRange':
+            if validator.min is not None: schema['minimum'] = validator.min
+            if validator.max is not None: schema['maximum'] = validator.max
+        if val == 'Length':
+            if validator.min is not -1: schema['minLength'] = validator.min 
+            if validator.max is not -1: schema['maxLength'] = validator.max
+        if val == 'IPAddress':
+            if validator.ipv4: schema['format'] = 'ipv4'
+            if validator.ipv6: schema['format'] = 'ipv6' 
+        if val == 'URL' or  val == 'Regexp':
+            schema['pattern']=validator.regex.pattern
 
     return schema
 
