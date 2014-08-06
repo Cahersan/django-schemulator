@@ -166,37 +166,34 @@ ipv6_field_js = {
 #    'format': 'date-time', 
 #}
 #
-## SLUG FIELD
-#slug_field = wtforms.SlugField(   label="Slug Field",
-#                                description="This is a slug field",
-#                                required=False,
-#                                max_length=100,
-#                                min_length=10)
-#
-#
-#slug_field_js = {
-#    'type': 'string', 
-#    'title': 'Slug Field',
-#    'description': 'This is a slug field', 
-#    'maxLength':100,
-#    'minLength':10
-#}
-#
-## URL FIELD
-#url_field = wtforms.URLField( label="URL Field",
-#                            description="This is an URL field",
-#                            required=False,
-#                            max_length=100,
-#                            min_length=0)
-#
-#
-#url_field_js = {
-#    'type': 'string', 
-#    'title': 'URL Field',
-#    'description': 'This is an URL field', 
-#    'maxLength':100,
-#    'minLength':0
-#}
+# SLUG FIELD
+slug_field = wtforms.StringField(   "Slug Field",
+                                    description="This is a slug field",
+                                    validators=[wtforms.validators.Optional(),
+                                                wtforms.validators.Length(min=10, max=50),
+                                                wtforms.validators.Regexp(r"^[a-z0-9-]+$")])
+
+
+slug_field_js = {
+    'type': 'string', 
+    'title': 'Slug Field',
+    'description': 'This is a slug field', 
+    'optional':True,
+    'maxLength':50,
+    'minLength':10,
+    'pattern':r"^[a-z0-9-]+$"
+}
+
+# URL FIELD
+url_field = wtforms.StringField("URL Field",
+                                description="This is an URL field",
+                                validators = [wtforms.validators.URL(require_tld=False)])
+
+url_field_js = {
+    'type': 'string', 
+    'title': 'URL Field',
+    'description': 'This is an URL field', 
+}
 
 # A FORM
 class TestForm(wtforms.Form):
@@ -209,12 +206,11 @@ class TestForm(wtforms.Form):
     select_field = select_field
     ipv4_field = ipv4_field
     ipv6_field = ipv6_field
-#    gen_ip_field = gen_ip_field
 #    date_field = date_field
 #    time_field = time_field
 #    date_time_field = date_time_field
-#    slug_field = slug_field
-#    url_field = url_field
+    slug_field = slug_field
+    url_field = url_field
 
 # An instance of TestForm to work with
 test_form = TestForm()
@@ -316,37 +312,38 @@ class FormToSchemaTestCase(TestCase):
 #        field_schema = field_to_schema(date_time_field)
 #        self.assertTrue(dict_in_dict(field_schema, date_time_field_js))
 #
-#    def test_slug_field(self):
-#        field_schema = field_to_schema(slug_field)
-#        self.assertTrue(dict_in_dict(field_schema, slug_field_js))
-#
-#    def test_slug_field_validation(self):
-#        field_schema = field_to_schema(slug_field)
-#        self.assertIsNone(validate('th1s-is-a-v4l1d-slug', field_schema))
-#        try:
-#            validate('this_IS_not:a/valid-slug!', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#
-#    def test_url_field(self):
-#        field_schema = field_to_schema(url_field)
-#        self.assertTrue(dict_in_dict(field_schema, url_field_js))
-#
-#    def test_url_field_validation(self):
-#        field_schema = field_to_schema(url_field)
-#
-#        self.assertIsNone(validate('http://example.org/resource.txt', field_schema))
-#        self.assertIsNone(validate('https://localhost:8000', field_schema))
-#        self.assertIsNone(validate('http://209.85.255.255', field_schema))
-#        self.assertIsNone(validate('ftp://example.org/', field_schema))
-#
-#        try:
-#            validate('http://notvalid', field_schema)
-#            validate('htp://notvalid.com', field_schema)
-#            validate('localhost', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#
+    def test_slug_field(self):
+        field_schema = field_to_schema(test_form.slug_field)
+        import ipdb; ipdb.set_trace()
+        self.assertTrue(dict_in_dict(field_schema, slug_field_js))
+
+    def test_slug_field_validation(self):
+        field_schema = field_to_schema(test_form.slug_field)
+        self.assertIsNone(validate('th1s-is-a-v4l1d-slug', field_schema))
+        try:
+            validate('this_IS_not:a/valid-slug!', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+
+    def test_url_field(self):
+        field_schema = field_to_schema(test_form.url_field)
+        self.assertTrue(dict_in_dict(field_schema, url_field_js))
+
+    def test_url_field_validation(self):
+        field_schema = field_to_schema(test_form.url_field)
+
+        self.assertIsNone(validate('http://www.example.org/resource.txt', field_schema))
+        self.assertIsNone(validate('https://localhost:8000', field_schema))
+        self.assertIsNone(validate('http://209.85.255.255', field_schema))
+        self.assertIsNone(validate('ftp://example.org/', field_schema))
+
+        try:
+            validate('http://notvalid', field_schema)
+            validate('htp://notvalid.com', field_schema)
+            validate('localhost', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+
 #class SchemaToFormTestCase(TestCase):
 #
 #    def setUp(self):

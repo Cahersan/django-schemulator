@@ -137,6 +137,10 @@ def wtfield_to_schema(field):
             jschema_field = getattr(mod, 'JSONIPAddressField')()
             if validator.ipv4: setattr(jschema_field, 'protocol', 'ipv4') 
             if validator.ipv6: setattr(jschema_field, 'protocol', 'ipv6') 
+        if val == 'URL':
+            jschema_field = getattr(mod, 'JSONURLField')(pattern=validator.regex.pattern)
+        if val == 'Regexp':
+            jschema_field = getattr(mod, 'JSONStringField')(pattern=validator.regex.pattern)
 
     # Setup of common JSON Schema keywords 
     setattr(jschema_field, 'title', field.label.text)
