@@ -3,7 +3,7 @@ import wtforms
 
 from jsonschema import validate, Draft4Validator, ValidationError
 
-from schemulator import form_to_schema, field_to_schema, schema_to_form, schema_to_field
+from schemulator import form_to_schema, field_to_schema, schema_to_form, schema_to_wtfield
 
 
 # These are FIELDS to test within the form and their equivalent representation
@@ -129,44 +129,42 @@ ipv6_field_js = {
     'format': 'ipv6', 
 }
 
-## DATE FIELD
-#date_field = wtforms.DateField(   label="Date Field",
-#                                description="This is a date field",
-#                                required=False)
-#
-#date_field_js = {
-#    'type': 'string', 
-#    'title': 'Date Field',
-#    'description': 'This is a date field', 
-#}
-#
-## TIME FIELD
-#time_field = wtforms.TimeField(   label="Time Field",
-#                                description="This is a time field",
-#                                required=False)
-#
-#
-#time_field_js = {
-#    'type': 'string', 
-#    'title': 'Time Field',
-#    'description': 'This is a time field', 
-#    'pattern':"^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$|^([0-1]?[0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$"
-#}
-#
-## DATE TIME FIELD
-#date_time_field = wtforms.DateTimeField(  label="Date-Time Field",
-#                                        description="This is a date-time field",
-#                                        required=False)
-#
-#
-#date_time_field_js = {
-#    'type': 'string', 
-#    'title': 'Date-Time Field',
-#    'description': 'This is a date-time field', 
-#    'format': 'date-time', 
-#}
-#
-# SLUG FIELD
+# DATE FIELD
+date_field = wtforms.DateField( "Date Field",
+                                description="This is a date field")
+
+date_field_js = {
+    'type': 'string', 
+    'title': 'Date Field',
+    'description': 'This is a date field', 
+}
+
+# TIME FIELD: Tests the Regexp Validator
+time_field = wtforms.StringField( "Time Field",
+                                description="This is a time field",
+                                validators=[wtforms.validators.Regexp("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$|^([0-1]?[0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$")])
+
+
+time_field_js = {
+    'type': 'string', 
+    'title': 'Time Field',
+    'description': 'This is a time field', 
+    'pattern':"^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$|^([0-1]?[0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$"
+}
+
+# DATE TIME FIELD
+date_time_field = wtforms.DateTimeField(    "Date-Time Field",
+                                            description="This is a date-time field")
+
+
+date_time_field_js = {
+    'type': 'string', 
+    'title': 'Date-Time Field',
+    'description': 'This is a date-time field', 
+    'format': 'date-time', 
+}
+
+# SLUG FIELD: Tests the Regexp Validator
 slug_field = wtforms.StringField(   "Slug Field",
                                     description="This is a slug field",
                                     validators=[wtforms.validators.Optional(),
@@ -206,9 +204,9 @@ class TestForm(wtforms.Form):
     select_field = select_field
     ipv4_field = ipv4_field
     ipv6_field = ipv6_field
-#    date_field = date_field
-#    time_field = time_field
-#    date_time_field = date_time_field
+    date_field = date_field
+    time_field = time_field
+    date_time_field = date_time_field
     slug_field = slug_field
     url_field = url_field
 
@@ -226,7 +224,6 @@ def dict_in_dict(d, subset_d):
 class FormToSchemaTestCase(TestCase):
     
     def setUp(self):
-
         pass
 
     def test_schema(self):
@@ -269,49 +266,49 @@ class FormToSchemaTestCase(TestCase):
         field_schema = field_to_schema(test_form.ipv6_field)
         self.assertTrue(dict_in_dict(field_schema, ipv6_field_js))
 
-#    def test_date_field(self):
-#        field_schema = field_to_schema(date_field)
-#        self.assertTrue(dict_in_dict(field_schema, date_field_js))
-#
-#    def test_date_field_validation(self):
-#        field_schema = field_to_schema(date_field)
-#        self.assertIsNone(validate('2006-10-25', field_schema))
-#        self.assertIsNone(validate('10/25/2006', field_schema))
-#        self.assertIsNone(validate('10/25/06', field_schema))
-#        # Try/Except clause has to be used instead of assertRaises() because 
-#        # validate() itself doesn't raise ValidationError.
-#        try:
-#            validate('128-4-5269', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#        try:
-#            validate('foo', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#        
-#    def test_time_field(self):
-#        field_schema = field_to_schema(time_field)
-#        self.assertTrue(dict_in_dict(field_schema, time_field_js))
-#
-#    def test_time_field_validation(self):
-#        field_schema = field_to_schema(time_field)
-#        self.assertIsNone(validate('10:00:30', field_schema))
-#        self.assertIsNone(validate('10:00', field_schema))
-#        # Try/Except clause has to be used instead of assertRaises() because 
-#        # validate() itself doesn't raise ValidationError.
-#        try:
-#            validate('10:70', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#        try:
-#            validate('foo', field_schema)
-#            self.fail('Invalid value was accepted')
-#        except ValidationError: pass
-#    
-#    def test_date_time_field(self):
-#        field_schema = field_to_schema(date_time_field)
-#        self.assertTrue(dict_in_dict(field_schema, date_time_field_js))
-#
+    def test_date_field(self):
+        field_schema = field_to_schema(test_form.date_field)
+        self.assertTrue(dict_in_dict(field_schema, date_field_js))
+
+    def test_date_field_validation(self):
+        field_schema = field_to_schema(test_form.date_field)
+        self.assertIsNone(validate('2006-10-25', field_schema))
+        self.assertIsNone(validate('10/25/2006', field_schema))
+        self.assertIsNone(validate('10/25/06', field_schema))
+        # Try/Except clause has to be used instead of assertRaises() because 
+        # validate() itself doesn't raise ValidationError.
+        try:
+            validate('128-4-5269', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+        try:
+            validate('foo', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+        
+    def test_time_field(self):
+        field_schema = field_to_schema(test_form.time_field)
+        self.assertTrue(dict_in_dict(field_schema, time_field_js))
+
+    def test_time_field_validation(self):
+        field_schema = field_to_schema(test_form.time_field)
+        self.assertIsNone(validate('10:00:30', field_schema))
+        self.assertIsNone(validate('10:00', field_schema))
+        # Try/Except clause has to be used instead of assertRaises() because 
+        # validate() itself doesn't raise ValidationError.
+        try:
+            validate('10:70', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+        try:
+            validate('foo', field_schema)
+            self.fail('Invalid value was accepted')
+        except ValidationError: pass
+    
+    def test_date_time_field(self):
+        field_schema = field_to_schema(test_form.date_time_field)
+        self.assertTrue(dict_in_dict(field_schema, date_time_field_js))
+
     def test_slug_field(self):
         field_schema = field_to_schema(test_form.slug_field)
         self.assertTrue(dict_in_dict(field_schema, slug_field_js))
@@ -343,82 +340,129 @@ class FormToSchemaTestCase(TestCase):
             self.fail('Invalid value was accepted')
         except ValidationError: pass
 
-#class SchemaToFormTestCase(TestCase):
-#
-#    def setUp(self):
-#        test_form.fields = {'boolean_field':boolean_field,
-#                            'text_field':text_field,
-#                            'email_field':email_field,
-#                            'decimal_field':decimal_field,
-#                            'float_field':float_field,
-#                            'integer_field':integer_field,
-#                            'choice_field':choice_field,
-#                            'ip_field':ip_field,
-#                            'gen_ip_field':gen_ip_field,
-#                            'date_field':date_field,
-#                            'time_field':time_field,
-#                            'date_time_field':date_time_field,
-#                            'slug_field':slug_field,
-#                            'url_field':url_field,
-#                        }
-#
-#    def test_form_to_schema_to_form(self):
-#        """
-#        Translates a form to a schema and back to a form and checks if the 
-#        form fields are the same in both forms. In this case, the __django_form_field_cls
-#        is being used as it is set in the form_to_schema function. 
-#        """
-#        schema = form_to_schema(test_form)
-#        recovered_form = schema_to_form(schema)
-#        rffi = [i[1].__class__.__name__ for i in sorted(recovered_form.fields.items())]
-#        tffi = [i[1].__class__.__name__ for i in sorted(test_form.fields.items())]
-#        self.assertEquals(rffi, tffi)
-#
-#    def test_boolean_field(self):
-#        field = schema_to_field(boolean_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), boolean_field_js))
-#
-#    def test_text_field(self):
-#        field = schema_to_field(text_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), text_field_js))
-#        
-#    def test_email_field(self):
-#        field = schema_to_field(email_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), email_field_js))
-#        
-#    def test_number_field(self):
-#        field = schema_to_field(float_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), float_field_js))
-#        
-#    def test_integer_field(self):
-#        field = schema_to_field(integer_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), integer_field_js))
-#        
-#    def test_choice_field(self):
-#        field = schema_to_field(choice_field_js)
-#        field_schema = field_to_schema(choice_field)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), choice_field_js))
-#        
-#    def test_ipv4_field(self):
-#        ip_field_js['format'] = 'ipv4'
-#        field = schema_to_field(ip_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), ip_field_js))
-#    
-#    def test_ipv6_field(self):
-#        ip_field_js['format'] = 'ipv6'
-#        field = schema_to_field(ip_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), ip_field_js))
-#        
-#    def test_date_time_field(self):
-#        field = schema_to_field(date_time_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), date_time_field_js))
-#    
-#    def test_slug_field(self):
-#        field = schema_to_field(slug_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), slug_field_js))
-#    
-#    def test_url_field(self):
-#        field = schema_to_field(url_field_js)
-#        self.assertTrue(dict_in_dict(field_to_schema(field), url_field_js))
-#
-#
+class SchemaToFormTestCase(TestCase):
+
+    def setUp(self):
+        
+        fields = {
+            'boolean_field':boolean_field,
+            'string_field':string_field,
+            'email_field':email_field,
+            'decimal_field':decimal_field,
+            'float_field':float_field,
+            'integer_field':integer_field,
+            'select_field':select_field,
+            'ipv4_field':ipv4_field,
+            'ipv6_field':ipv6_field,
+            'date_field':date_field,
+            'time_field':time_field,
+            'date_time_field':date_time_field,
+            'slug_field':slug_field,
+            'url_field':url_field,
+        }
+
+        self.schema = {  
+            '$schema':'http://json-schema.org/draft-04/schema#',
+            'title':'JSON Schema',
+            'description':'This is a JSON Schema describing a form',
+            'properties':{}
+        }
+
+        self.test_form = TestForm()
+
+    def test_form_to_schema_to_form(self):
+        """
+        Translates a form to a schema and back to a form and checks if the 
+        form fields are the same in both forms. In this case, the __django_form_field_cls
+        is being used as it is set in the form_to_schema function. 
+        """
+        schema = form_to_schema(self.test_form)
+        recovered_form = schema_to_form(schema, form_type='wtforms')
+        rffi = [i[1].__class__.__name__ for i in sorted(recovered_form._fields.items())]
+        tffi = [i[1].__class__.__name__ for i in sorted(self.test_form._fields.items())]
+        self.assertEquals(rffi, tffi)
+
+    def test_boolean_field(self):
+        schema = self.schema 
+        schema['properties']['boolean_field'] = boolean_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['boolean_field']), boolean_field_js))
+
+    def test_string_field(self):
+        schema = self.schema 
+        schema['properties']['string_field'] = string_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['string_field']), string_field_js))
+        
+    def test_email_field(self):
+        schema = self.schema 
+        schema['properties']['email_field'] = email_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['email_field']), email_field_js))
+        
+    def test_decimal_field(self):
+        schema = self.schema 
+        schema['properties']['decimal_field'] = decimal_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['decimal_field']), decimal_field_js))
+        
+    def test_float_field(self):
+        schema = self.schema 
+        schema['properties']['float_field'] = float_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['float_field']), float_field_js))
+        
+    def test_integer_field(self):
+        schema = self.schema 
+        schema['properties']['integer_field'] = integer_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['integer_field']), integer_field_js))
+        
+    def test_select_field(self):
+        schema = self.schema 
+        schema['properties']['select_field'] = select_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['select_field']), select_field_js))
+        
+    def test_ipv4_field(self):
+        schema = self.schema 
+        schema['properties']['ipv4_field'] = ipv4_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['ipv4_field']), ipv4_field_js))
+    
+    def test_ipv6_field(self):
+        schema = self.schema 
+        schema['properties']['ipv6_field'] = ipv6_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['ipv6_field']), ipv6_field_js))
+        
+    def test_date_field(self):
+        schema = self.schema 
+        schema['properties']['date_field'] = date_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['date_field']), date_field_js))
+
+    def test_time_field(self):
+        schema = self.schema 
+        schema['properties']['time_field'] = time_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['time_field']), time_field_js))
+
+    def test_date_time_field(self):
+        schema = self.schema 
+        schema['properties']['date_time_field'] = date_time_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['date_time_field']), date_time_field_js))
+    
+    def test_slug_field(self):
+        schema = self.schema 
+        schema['properties']['slug_field'] = slug_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['slug_field']), slug_field_js))
+    
+    def test_url_field(self):
+        schema = self.schema 
+        schema['properties']['url_field'] = url_field_js
+        form = schema_to_form(schema, form_type='wtforms')
+        self.assertTrue(dict_in_dict(field_to_schema(form['url_field']), url_field_js))
+

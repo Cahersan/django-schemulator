@@ -143,6 +143,7 @@ def wtfield_to_schema(field):
 
     return schema
 
+
 def field_to_schema(field):
     """
     """
@@ -178,6 +179,7 @@ def field_to_schema(field):
 
     return schema
 
+
 def form_to_schema(form):
     """
     """
@@ -189,7 +191,7 @@ def form_to_schema(form):
         'properties':{}
     }
     
-    if isinstance(form, wtforms.Form):
+    if isinstance(form, wtforms.form.BaseForm):
         for field in form:
 
             field_schema = field_to_schema(field)
@@ -203,6 +205,55 @@ def form_to_schema(form):
             schema['properties'][name] = field_schema
 
     return schema
+
+
+def schema_to_wtfield(schema):
+    """
+    Returns a WTForms Field when given a schema fragment. Returns a field which
+    is Unbound.
+    """
+    
+    kwargs = {}
+    validators = []
+
+    # This block sets the value of relevant field keyword arguments
+    if 'description' in schema: kwargs['description'] = schema['description']
+    if 'title' in schema: kwargs['label'] = schema['title']
+    if 'default' in schema: kwargs['default'] = schema['default']
+    if 'optional' in schema: validators.append(wtforms.validators.Optional())
+    if 'minLength' in schema: validators.append(wtforms.validators.Length(min=schema['minLength']))
+    if 'maxLength' in schema: validators.append(wtforms.validators.Length(max=schema['maxLength']))
+    if 'minimum' in schema: validators.append(wtforms.validators.NumberRange(min=schema['minimum']))
+    if 'maximum' in schema: validators.append(wtforms.validators.NumberRange(max=schema['maximum']))
+    if 'pattern' in schema: validators.append(wtforms.validators.Regexp(schema['pattern']))
+    
+    # This block decides upon which form wtfield should be used.
+    if '__wtforms_field_cls' in schema:
+        field_type = schema['__wtforms_field_cls']
+    elif 'enum' in schema:
+        field_type = 'SelectField'
+        kwargs['choices'] = schema['enum']
+    elif 'format' in schema and schema['type'] == 'string':
+        field_type = 'StringField'
+        if schema['format'] == 'ipv4':
+            validators.append(wtforms.validators.IPAddress(ipv4=True))
+        if schema['format'] =='ipv6': 
+            validators.append(wtforms.validators.IPAddress(ipv6=True))
+        if schema['format'] == 'email': 
+            validators.append(wtforms.validators.Email())
+        if schema['format'] == 'date-time': 
+            field_type = 'DateTimeField'
+    else: 
+        field_type = TYPES[schema['type']]
+        if field_type=='CharField': field_type='StringField' 
+    
+    kwargs['validators']=validators
+
+    mod = import_module('wtforms', field_type)
+    form_field = getattr(mod, field_type)(**kwargs)
+
+    return form_field
+
 
 def schema_to_field(schema):
     """
@@ -242,9 +293,22 @@ def schema_to_field(schema):
 
     return field
 
-def schema_to_form(schema):
+
+def schema_to_form(schema, form_type=None):
     """
     """
+
+    # Case for wtforms
+    if form_type == 'wtforms':
+
+        class Form(wtforms.Form):
+            pass
+
+        for (name, prop) in schema['properties'].items():
+            field = schema_to_wtfield(prop)
+            setattr(Form, name, field)
+        
+        return Form()
 
     form = forms.Form()
 
@@ -255,8 +319,4 @@ def schema_to_form(schema):
         form.fields[name] = field
 
     return form 
-
-def get_protocol(gen_ip_field):
-    pass
-
 
