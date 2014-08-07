@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Django-schemulator : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Django-schemulator</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Cahersan/django-schemulator">View on GitHub</a>
+
+          <h1 id="project_title">Django-schemulator</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Cahersan/django-schemulator/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Cahersan/django-schemulator/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a name="django-schemulator" class="anchor" href="#django-schemulator"><span class="octicon octicon-link"></span></a>django-schemulator</h2>
+
+<p>django-schemulator provides the <code>form_to_schema(form)</code> function which generates a 
+JSONSchema describing the Django form which is fed as the input argument.</p>
+
+<p>What's this all about? Read the following:</p>
+
+<p><a href="http://json-schema.org/">json-schema.org</a><br><a href="http://spacetelescope.github.io/understanding-json-schema/index.html">A great guide to the JSON Schema syntax</a><br><a href="https://docs.djangoproject.com/en/1.7/ref/forms/fields/">Django built-in form fields</a>  </p>
+
+<p>django-schemulator uses:</p>
+
+<p><a href="https://github.com/Cahersan/json-document">json-document</a><br><a href="https://github.com/Cahersan/json-schema-toolkit">json-schema-toolkit</a></p>
+
+<p>To use django formulator install it using <code>pip</code></p>
+
+<pre><code>git clone https://github.com/Cahersan/django-schemulator
+cd django-schemulator
+pip install .
+</code></pre>
+
+<p>and then import the function as follows</p>
+
+<pre><code>from schemulator import form_to_schema 
+</code></pre>
+
+<p>django-schemulator is still under developement, but so far it supports the
+following Django fields:</p>
+
+<ul>
+<li>BooleanField<br>
+</li>
+<li>CharField </li>
+<li>ChoiceField   (using <code>choices</code> argument)</li>
+<li>DateField </li>
+<li>DateTimeField </li>
+<li>DecimalField<br>
+</li>
+<li>EmailField<br>
+</li>
+<li>FloatField<br>
+</li>
+<li>IntegerField<br>
+</li>
+<li>IPAddressField<br>
+</li>
+<li>GenericIPAddressField </li>
+</ul><p>Here is a list of the field arguments supported so far:</p>
+
+<ul>
+<li>help_text</li>
+<li>label</li>
+<li>initial</li>
+<li>required</li>
+</ul><p>Additionaly, in string-based fields, the following field arguments can be used:</p>
+
+<ul>
+<li>min_length</li>
+<li>max_length</li>
+</ul><p>In number-based fields, the following field arguments can be used:</p>
+
+<ul>
+<li>min_value</li>
+<li>max_value</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Django-schemulator maintained by <a href="https://github.com/Cahersan">Cahersan</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
