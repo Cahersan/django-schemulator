@@ -418,7 +418,6 @@ class SchemaToFormTestCase(TestCase):
         
     def test_choice_field(self):
         field = schema_to_field(choice_field_js)
-        field_schema = field_to_schema(choice_field)
         self.assertTrue(dict_in_dict(field_to_schema(field), choice_field_js))
         
     def test_ipv4_field(self):
