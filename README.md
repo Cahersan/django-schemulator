@@ -1,58 +1,23 @@
-## django-schemulator
+# django-schemulator
 
-django-schemulator provides the `form_to_schema(form)` function which generates a 
-JSONSchema describing the Django form which is fed as the input argument.
+__django-schemulator__ aims to provide an easy way to generate descriptions of
+forms using JSON Schema. __django-schemulator__ can convert [Django Forms](https://docs.djangoproject.com/en/dev/ref/forms/api/#django.forms.Form) and
+[WTForms](https://wtforms.readthedocs.org/en/latest/index.html#) to JSON Schema representations and viceversa.
 
-What's this all about? Read the following:
+Learn more about JSON Schema in [json-schema.org](http://json-schema.org/) and throught this [great guide](http://spacetelescope.github.io/understanding-json-schema/index.html) to the JSON Schema syntax.
 
-[json-schema.org](http://json-schema.org/)  
-[A great guide to the JSON Schema syntax](http://spacetelescope.github.io/understanding-json-schema/index.html)  
-[Django built-in form fields](https://docs.djangoproject.com/en/1.7/ref/forms/fields/)  
+To learn more about __django-schemulator__, [read the full documentation](http://cahersan.github.io/django-schemulator/)
 
-django-schemulator uses:
+### Installation
 
-[json-document](https://github.com/Cahersan/json-document)  
-[json-schema-toolkit](https://github.com/Cahersan/json-schema-toolkit)
-
-To use django formulator install it using `pip`
+Install __django-schemulator__ via `pip`
     
     git clone https://github.com/Cahersan/django-schemulator
     cd django-schemulator
     pip install .
 
-and then import the function as follows
+django-schemulator uses:
 
-    from schemulator import form_to_schema 
-
-django-schemulator is still under developement, but so far it supports the
-following Django fields:
-
-* BooleanField	
-* CharField	
-* ChoiceField	(using `choices` argument)
-* DateField	
-* DateTimeField	
-* DecimalField	
-* EmailField	
-* FloatField	
-* IntegerField	
-* IPAddressField	
-* GenericIPAddressField	
-
-Here is a list of the field arguments supported so far:
-
-* help_text
-* label
-* initial
-* required
-
-Additionaly, in string-based fields, the following field arguments can be used:
-
-* min_length
-* max_length
-
-In number-based fields, the following field arguments can be used:
-
-* min_value
-* max_value
+[json-document](https://github.com/Cahersan/json-document)  
+[json-schema-toolkit](https://github.com/Cahersan/json-schema-toolkit)
 
