@@ -1,62 +1,29 @@
-# Django Schemulator Documentation
+# Introduction
 
-django-schemulator
+__django-schemulator__ aims to provide an easy way to generate descriptions of
+forms using JSON Schema. __django-schemulator__ can convert [Django Forms](https://docs.djangoproject.com/en/dev/ref/forms/api/#django.forms.Form) and
+[WTForms](https://wtforms.readthedocs.org/en/latest/index.html#) to JSON Schema representations and viceversa.
 
-django-schemulator provides the following Methodsfunctions
+Learn more about JSON Schema in [json-schema.org](http://json-schema.org/) and throught this [great guide](http://spacetelescope.github.io/understanding-json-schema/index.html) to the JSON Schema syntax.
 
-__`form_to_schema(form)`__ 
-function which generates a JSONSchema describing the Django form which is fed as the input argument.
+### Installation
 
-What's this all about? Read the following:
+Install __django-schemulator__ via `pip`
+    
+    git clone https://github.com/Cahersan/django-schemulator
+    cd django-schemulator
+    pip install .
 
-[json-schema.org](http://json-schema.org/)  
-[A great guide to the JSON Schema syntax](http://spacetelescope.github.io/understanding-json-schema/index.html)  
-[Django built-in form fields](https://docs.djangoproject.com/en/1.7/ref/forms/fields/)  
 
 django-schemulator uses:
 
 [json-document](https://github.com/Cahersan/json-document)  
 [json-schema-toolkit](https://github.com/Cahersan/json-schema-toolkit)
 
-To use django formulator install it using `pip`
-    
-    git clone https://github.com/Cahersan/django-schemulator
-    cd django-schemulator
-    pip install .
 
-and then import the function as follows
+### What's Supported?
 
-    from schemulator import form_to_schema 
-
-django-schemulator is still under developement, but so far it supports the
-following Django fields:
-
-* BooleanField	
-* CharField	
-* ChoiceField	(using `choices` argument)
-* DateField	
-* DateTimeField	
-* DecimalField	
-* EmailField	
-* FloatField	
-* IntegerField	
-* IPAddressField	
-* GenericIPAddressField	
-
-Here is a list of the field arguments supported so far:
-
-* help_text
-* label
-* initial
-* required
-
-Additionaly, in string-based fields, the following field arguments can be used:
-
-* min_length
-* max_length
-
-In number-based fields, the following field arguments can be used:
-
-* min_value
-* max_value
+__django-schemulator__ is still under developement, but so far supports a great deal of
+Django Forms and WTForms fields as well as field arguments and validators. Refer to
+[what's supported](support.md) to learn more.  
 
