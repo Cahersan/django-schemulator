@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>Methods - Django Schemulator</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">Django Schemulator</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="active">
+                    <a href="./">Methods</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../support/">What's Supported?</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../support/">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#methods">Methods</a></li>
+        
+            <li><a href="#wtfield_to_schemafield">wtfield_to_schema(field)</a></li>
+        
+            <li><a href="#field_to_schemafield">field_to_schema(field)</a></li>
+        
+            <li><a href="#form_to_schemaform">form_to_schema(form)</a></li>
+        
+            <li><a href="#schema_to_wtfieldschema">schema_to_wtfield(schema)</a></li>
+        
+            <li><a href="#schema_to_fieldschema">schema_to_field(schema)</a></li>
+        
+            <li><a href="#schema_to_formschema-form_typenone">schema_to_form(schema, form_type=None)</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="methods">Methods</h1>
+<p><strong>django-schemulator</strong> provides the following methods:</p>
+<h3 id="wtfield_to_schemafield"><code>wtfield_to_schema(field)</code></h3>
+<p>This method takes a WTForms field and returns a JSON schema (a dictionary).</p>
+<h3 id="field_to_schemafield"><code>field_to_schema(field)</code></h3>
+<p>This method takes a Django Forms field and returns a JSON schema (a dictionary).</p>
+<h3 id="form_to_schemaform"><code>form_to_schema(form)</code></h3>
+<p>This method takes a Django Form or a WTForms and returns a JSON schema (a dictionary).
+Internally, it analyzes the fields that the form contains and uses one of the previous 
+methods to provide the JSON schema representation.</p>
+<p><strong>Example</strong></p>
+<ul>
+<li>
+<p>Django Form</p>
+<pre class="prettyprint well"><code>class TestForm(forms.Form):
+
+    boolean_field = forms.BooleanField(
+                            label="Boolean Field",
+                            help_text="This is a boolean field",
+                            initial=True,
+                            required=False)
+
+    text_field = forms.CharField(
+                            label="Text Field",
+                            help_text="This is a text field",
+                            required=False,
+                            max_length=100,
+                            min_length=20)text_field = text_field
+
+    email_field = forms.EmailField( label="Email Field",
+                            help_text="This is an email field",
+                            initial="email@example.com",
+                            max_length=100,
+                            required=False)
+</code></pre>
+</li>
+<li>
+<p>WTForm</p>
+<pre class="prettyprint well"><code>class TestForm(wtforms.Form):
+
+    boolean_field = wtforms.BooleanField(
+                            "Boolean Field",
+                            description="This is a boolean field",
+                            default=True,
+                            validators=[wtforms.validators.Optional()])
+
+    email_field = wtforms.StringField(
+                           "Email Field",
+                           description="This is an email field",
+                           default="email@example.com",
+                           validators=[ wtforms.validators.Email(),
+                                        wtforms.validators.Length(max=100),)
+                                        wtforms.validators.Optional()])
+
+    text_field = wtforms.StringField(
+                           "Text Field",
+                           description="This is a text field",
+                           validators=[ wtforms.validators.Length(min=20, max=100),
+                                        wtforms.validators.Optional()])
+</code></pre>
+</li>
+</ul>
+<p>For both forms, the corresponding JSON Shema is the following. 
+<strong>Note:</strong> <em>Some irrelevant entries have been removed for clarity.</em></p>
+<pre class="prettyprint well"><code>{ '$schema': 'http://json-schema.org/draft-04/schema#', 
+  'description': 'This is a JSON Schema describing a form',
+  'title': 'JSON Schema'
+  'properties': {
+       'boolean_field': {
+           'description': 'This is a boolean field', 
+           'null': False, 
+           'optional': True,
+           'title': 'Boolean Field',
+           'default': True,
+           'type': 'boolean'}, 
+       'email_field': {
+           'description': 'This is an email field',
+           'format': 'email',
+           'maxLength': 100,
+           'null': False, 
+           'optional': True, 
+           'title': 'Email Field',
+           'default': 'email@example.com',
+           'type': 'string'}, 
+       'text_field': {
+           'description': 'This is a text field',
+           'minLength': 20,
+           'maxLength': 100,
+           'null': False,
+           'optional': True,
+           'title': 'Text Field',
+           'default': None,
+           'type': 'string'}},
+}
+</code></pre>
+<h3 id="schema_to_wtfieldschema"><code>schema_to_wtfield(schema)</code></h3>
+<p><strong>TODO</strong></p>
+<h3 id="schema_to_fieldschema"><code>schema_to_field(schema)</code></h3>
+<p><strong>TODO</strong></p>
+<h3 id="schema_to_formschema-form_typenone"><code>schema_to_form(schema, form_type=None)</code></h3>
+<p><strong>TODO</strong></p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

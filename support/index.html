@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>What's Supported? - Django Schemulator</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">Django Schemulator</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../methods/">Methods</a>
+                </li>
+            
+            
+            
+                <li class="active">
+                    <a href="./">What's Supported?</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="../methods/">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#whats-supported">What's Supported?</a></li>
+        
+            <li><a href="#django-form-to-json-schema">Django Form to JSON Schema</a></li>
+        
+            <li><a href="#wtform-to-json-schema">WTForm to JSON Schema</a></li>
+        
+            <li><a href="#json-schema-to-django-form">JSON Schema to Django Form</a></li>
+        
+            <li><a href="#json-schema-to-wtform">JSON Schema to WTForm</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h2 id="whats-supported">What's Supported?</h2>
+<p>&nbsp;</p>
+<h4 id="django-form-to-json-schema">Django Form to JSON Schema</h4>
+<p>&nbsp;</p>
+<p>A Django Form containing any number of the following Django Forms field classes.</p>
+<ul>
+<li><code>BooleanField</code> </li>
+<li><code>CharField</code>   </li>
+<li><code>ChoiceField</code></li>
+<li><code>DateField</code>   </li>
+<li><code>TimeField</code></li>
+<li><code>DateTimeField</code>   </li>
+<li><code>DecimalField</code>    </li>
+<li><code>EmailField</code>  </li>
+<li><code>FloatField</code>  </li>
+<li><code>IntegerField</code>    </li>
+<li><code>IPAddressField</code>  </li>
+<li><code>GenericIPAddressField</code></li>
+<li><code>SlugField</code></li>
+<li><code>URLField</code></li>
+</ul>
+<p>&nbsp;</p>
+<p>These field take a series of arguments. Here is a list of the field arguments supported so far:</p>
+<p><strong>Arguments common to all field classes</strong></p>
+<ul>
+<li><code>help_text</code></li>
+<li><code>label</code></li>
+<li><code>initial</code></li>
+<li><code>required</code></li>
+</ul>
+<p><strong>Arguments common to string-based field classes</strong></p>
+<ul>
+<li><code>min_length</code></li>
+<li><code>max_length</code></li>
+</ul>
+<p><strong>Arguments common to number-based field classes</strong></p>
+<ul>
+<li><code>min_value</code></li>
+<li><code>max_value</code></li>
+</ul>
+<p><strong>ChoiceField argument</strong></p>
+<ul>
+<li><code>choices</code></li>
+</ul>
+<p>&nbsp;</p>
+<h4 id="wtform-to-json-schema">WTForm to JSON Schema</h4>
+<p>&nbsp;</p>
+<p>A WTForm containing any of the following WTForms field classes.</p>
+<ul>
+<li><code>BooleanField</code></li>
+<li><code>DateField</code></li>
+<li><code>DateTimeField</code></li>
+<li><code>DecimalField</code></li>
+<li><code>FloatField</code> </li>
+<li><code>IntegerField</code></li>
+<li><code>SelectField</code></li>
+<li><code>StringField</code></li>
+</ul>
+<p>Still unsupported:</p>
+<ul>
+<li><code>Field</code></li>
+<li><code>FieldList</code></li>
+<li><code>FileField</code></li>
+<li><code>FormField</code></li>
+<li><code>HiddenField</code></li>
+<li><code>PasswordField</code></li>
+<li><code>RadioField</code></li>
+<li><code>SelectFieldBase</code></li>
+<li><code>SelectMultipleField</code></li>
+<li><code>SubmitField</code></li>
+<li><code>TextAreaField</code></li>
+<li><code>TextField</code></li>
+</ul>
+<p>These field take a series of <strong>arguments</strong>. Here is a list of the field arguments supported so far:</p>
+<ul>
+<li><code>description</code></li>
+<li><code>label</code></li>
+<li><code>default</code></li>
+<li><code>validators</code></li>
+</ul>
+<p>The following <strong>validators</strong> are supported:</p>
+<ul>
+<li><code>Length</code></li>
+<li><code>NumberRange</code></li>
+<li><code>Optional</code></li>
+<li><code>Regexp</code></li>
+</ul>
+<p>&nbsp;</p>
+<h4 id="json-schema-to-django-form">JSON Schema to Django Form</h4>
+<p>&nbsp;</p>
+<p><strong>TODO</strong></p>
+<p>&nbsp;</p>
+<h4 id="json-schema-to-wtform">JSON Schema to WTForm</h4>
+<p>&nbsp;</p>
+<p><strong>TODO</strong></p>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>
