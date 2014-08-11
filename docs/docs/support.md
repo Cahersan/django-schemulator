@@ -94,18 +94,3 @@ The following __validators__ are supported:
 * `Optional`
 * `Regexp`
 
-&nbsp;
-
-#### JSON Schema to Django Form
-
-&nbsp;
-
-__TODO__
-
-&nbsp;
-
-#### JSON Schema to WTForm
-
-&nbsp;
-
-__TODO__

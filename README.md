@@ -6,7 +6,8 @@ forms using JSON Schema. __django-schemulator__ can convert [Django Forms](https
 
 Learn more about JSON Schema in [json-schema.org](http://json-schema.org/) and throught this [great guide](http://spacetelescope.github.io/understanding-json-schema/index.html) to the JSON Schema syntax.
 
-To learn more about __django-schemulator__, [read the full documentation](http://cahersan.github.io/django-schemulator/)
+
+### Visit __django-schemulator__'s [project page](http://cahersan.github.io/django-schemulator/)!
 
 ### Installation
 
