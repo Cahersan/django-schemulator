@@ -2,15 +2,19 @@
 
 __django-schemulator__ provides the following methods:
 
-### `wtfield_to_schema(field)` 
+#### `wtfield_to_schema(field)` 
 
 This method takes a WTForms field and returns a JSON schema (a dictionary).
 
-### `field_to_schema(field)` 
+&nbsp;
+
+#### `field_to_schema(field)` 
 
 This method takes a Django Forms field and returns a JSON schema (a dictionary).
 
-### `form_to_schema(form)` 
+&nbsp;
+
+#### `form_to_schema(form)` 
 
 This method takes a Django Form or a WTForms and returns a JSON schema (a dictionary).
 Internally, it analyzes the fields that the form contains and uses one of the previous 
@@ -100,15 +104,66 @@ __Note:__ _Some irrelevant entries have been removed for clarity._
                'type': 'string'}},
     }
 
-### `schema_to_wtfield(schema)` 
+&nbsp;
 
-__TODO__
+#### `schema_to_form(schema, form_type=None)` 
 
-### `schema_to_field(schema)` 
+This method takes a dictionary with a valid JSON Schema syntax and returns a form.
+By default, the form returned is a Django Form, but by setting the`form_type` 
+argument to `wtforms` the output is a WTForm.
 
-__TODO__
+&nbsp;
 
-### `schema_to_form(schema, form_type=None)` 
+#### `schema_to_wtfield(schema)` 
 
-__TODO__
+This method is used by the`schema_to_form()` method to dynamically generate the
+fields within the returned form. It takes a dictionary with a valid JSON Schema syntax describing a field
+and returns an WTForms `UnboundField` instance.
 
+If you where to use it independently, you may bind the field to a form by setting it as an
+attribute of a WTForms form before instatination, via `setattr`.
+
+&nbsp;
+
+#### `schema_to_field(schema)` 
+
+This method is used by the`schema_to_form()` method to dynamically generate the
+fields within the returned form. It takes a dictionary with a valid JSON Schema syntax describing a field
+and returns an Django Forms field instance.
+
+&nbsp;
+
+## Special JSON Schema Keywords
+
+__django-schemulator__ recognizes three special keywords within a JSON Schema
+representation of a form. These can be provided to explicitly indicate which field
+classes and widgets should be used within the forms. These should be the name of
+the form or widget class.
+
+* `__django_form_field_cls`
+
+    The Django forms field class to be used.
+
+* `__wtforms_field_cls`
+
+    The WTForms field class to be used.
+
+* `__widget`
+
+    The Django forms or WTforms widget class to be used.
+
+__Example__:
+ 
+The following JSON Schema describes a Django forms `CharField` with a `Textarea` widget instead
+of the default `TextInput` widget.
+
+    {
+    '__django_form_field_cls': 'CharField', 
+    '__widget': 'Textarea',
+    'type': 'string',
+    'title': 'Text Area Field',
+    'description': 'This is a text area field',
+    'minLength': 0, 
+    'maxLength': 200,
+    'optional': False,
+    }

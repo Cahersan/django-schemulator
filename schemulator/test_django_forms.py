@@ -39,6 +39,23 @@ text_field_js = {
     'minLength': 20,
 }
 
+# TEXT AREA FIELD: Tests '__widget' keyword
+text_area_field = forms.CharField(   label="Text Area Field",
+                                help_text="This is a text area field",
+                                max_length=200,
+                                min_length=0,
+                                widget=forms.widgets.Textarea)
+
+text_area_field_js = {
+    '__widget':'Textarea',
+    'type': 'string',
+    'description': 'This is a text area field', 
+    'title': 'Text Area Field',
+    'optional': False,
+    'maxLength': 200,
+    'minLength': 0,
+}
+
 # EMAIL FIELD
 email_field = forms.EmailField( label="Email Field",
                                 help_text="This is an email field",
@@ -75,12 +92,12 @@ decimal_field_js = {
 }
 
 # FLOAT FIELD
-float_field = forms.FloatField(   label="Float Field",
-                                    help_text="This is a float field",
-                                    initial=10.04,
-                                    max_value=100,
-                                    min_value=2.53,
-                                    required=False)
+float_field = forms.FloatField( label="Float Field",
+                                help_text="This is a float field",
+                                initial=10.04,
+                                max_value=100,
+                                min_value=2.53,
+                                required=False)
 
 float_field_js = {
     'type': 'number', 
@@ -222,6 +239,7 @@ url_field_js = {
 class TestForm(forms.Form):
     boolean_field = boolean_field
     text_field = text_field
+    text_area_field = text_area_field
     email_field = email_field
     decimal_field = decimal_field
     float_field = float_field 
@@ -262,6 +280,10 @@ class FormToSchemaTestCase(TestCase):
     def test_text_field(self):
         field_schema = field_to_schema(text_field)
         self.assertTrue(dict_in_dict(field_schema, text_field_js))
+        
+    def test_text_area_field(self):
+        field_schema = field_to_schema(text_area_field)
+        self.assertTrue(dict_in_dict(field_schema, text_area_field_js))
         
     def test_email_field(self):
         field_schema = field_to_schema(email_field)
@@ -370,6 +392,7 @@ class SchemaToFormTestCase(TestCase):
     def setUp(self):
         test_form.fields = {'boolean_field':boolean_field,
                             'text_field':text_field,
+                            'text_area_field':text_area_field,
                             'email_field':email_field,
                             'decimal_field':decimal_field,
                             'float_field':float_field,
@@ -388,7 +411,7 @@ class SchemaToFormTestCase(TestCase):
         """
         Translates a form to a schema and back to a form and checks if the 
         form fields are the same in both forms. In this case, the __django_form_field_cls
-        is being used as it is set in the form_to_schema function. 
+        keyword is being used as it is set in the form_to_schema function. 
         """
         schema = form_to_schema(test_form)
         recovered_form = schema_to_form(schema)
@@ -404,6 +427,10 @@ class SchemaToFormTestCase(TestCase):
         field = schema_to_field(text_field_js)
         self.assertTrue(dict_in_dict(field_to_schema(field), text_field_js))
         
+    def test_text_area_field(self):
+        field = schema_to_field(text_area_field_js)
+        self.assertTrue(dict_in_dict(field_to_schema(field), text_area_field_js))
+
     def test_email_field(self):
         field = schema_to_field(email_field_js)
         self.assertTrue(dict_in_dict(field_to_schema(field), email_field_js))

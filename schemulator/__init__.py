@@ -60,14 +60,14 @@ WTFIELDS = {
     "HiddenField":"",
     "IntegerField":"JSONIntegerField",
     "PasswordField":"",
-    "RadioField":"",
+    "RadioField":"JSONStringField",
     "SelectField":"JSONStringField",
     "SelectFieldBase":"",
-    "SelectMultipleField":"",
+    "SelectMultipleField":"JSONStringField",
     "StringField":"JSONStringField",
     "SubmitField":"",
-    "TextAreaField":"",
-    "TextField":"",
+    "TextAreaField":"JSONStringField",
+    "TextField":"JSONStringField",
 }
 
 KEYWORDS = {
@@ -104,11 +104,14 @@ FORMATS = {
 def wtfield_to_schema(field):
     """
     """
-    field_type = field.__class__.__name__  
+    field_type = field.type  
         
     mod = import_module('json_schema_toolkit.document', WTFIELDS[field_type])
-    jschema_field = getattr(mod, WTFIELDS[field_type])()
-    
+    try:
+        jschema_field = getattr(mod, WTFIELDS[field_type])()
+    except AttributeError:
+        raise AttributeError(field_type + " is currently unsupported.")
+
     # Setup of common JSON Schema keywords 
     setattr(jschema_field, 'title', field.label.text)
     setattr(jschema_field, 'description', field.description)
@@ -117,8 +120,11 @@ def wtfield_to_schema(field):
     schema = jschema_field._generate_schema()
 
     schema['__wtforms_field_cls'] = field_type
+    schema['__widget'] = field.widget.__class__.__name__
 
-    if field_type == 'SelectField':
+    if  field_type == 'SelectField' or \
+        field_type == 'SelectMultipleField' or \
+        field_type == 'RadioField':
         schema['enum'] = field.choices 
 
     # Setup of jsonschema keywords depending on validators
@@ -176,6 +182,7 @@ def field_to_schema(field):
 
     # Set __django_form_field_cls keyword
     schema['__django_form_field_cls'] = field_type
+    schema['__widget'] = field.widget.__class__.__name__
 
     return schema
 
@@ -249,6 +256,11 @@ def schema_to_wtfield(schema):
     
     kwargs['validators']=validators
 
+    if '__widget' in schema:
+        mod = import_module('wtforms.widgets', schema['__widget'])
+        widget = getattr(mod, schema['__widget'])() 
+        kwargs['widget'] = widget
+
     mod = import_module('wtforms', field_type)
     form_field = getattr(mod, field_type)(**kwargs)
 
@@ -287,6 +299,11 @@ def schema_to_field(schema):
     else: 
         field_type = TYPES[schema['type']]
 
+    if '__widget' in schema:
+        mod = import_module('django.forms.widgets', schema['__widget'])
+        widget = getattr(mod, schema['__widget'])() 
+        kwargs['widget'] = widget
+
     mod = import_module('django.forms', field_type)
     form_field = getattr(mod, field_type)
     field = form_field(**kwargs)
@@ -310,6 +327,7 @@ def schema_to_form(schema, form_type=None):
         
         return Form()
 
+    # Case for Django Forms
     form = forms.Form()
 
     # loop along fields

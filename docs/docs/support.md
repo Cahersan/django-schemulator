@@ -62,10 +62,14 @@ A WTForm containing any of the following WTForms field classes.
 * `DecimalField`
 * `FloatField` 
 * `IntegerField`
+* `RadioField`
 * `SelectField`
+* `SelectMultipleField`
 * `StringField`
+* `TextField` (deprecated, will be removed in WTForms 3.0)
+* `TextAreaField`
 
-Still unsupported:
+Unsupported:
 
 * `Field`
 * `FieldList`
@@ -73,12 +77,8 @@ Still unsupported:
 * `FormField`
 * `HiddenField`
 * `PasswordField`
-* `RadioField`
 * `SelectFieldBase`
-* `SelectMultipleField`
 * `SubmitField`
-* `TextAreaField`
-* `TextField`
 
 These field take a series of __arguments__. Here is a list of the field arguments supported so far:
 
