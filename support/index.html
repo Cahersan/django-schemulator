@@ -98,10 +98,6 @@
         
             <li><a href="#wtform-to-json-schema">WTForm to JSON Schema</a></li>
         
-            <li><a href="#json-schema-to-django-form">JSON Schema to Django Form</a></li>
-        
-            <li><a href="#json-schema-to-wtform">JSON Schema to WTForm</a></li>
-        
     
     </ul>
 </div></div>
@@ -162,10 +158,14 @@
 <li><code>DecimalField</code></li>
 <li><code>FloatField</code> </li>
 <li><code>IntegerField</code></li>
+<li><code>RadioField</code></li>
 <li><code>SelectField</code></li>
+<li><code>SelectMultipleField</code></li>
 <li><code>StringField</code></li>
+<li><code>TextField</code> (deprecated, will be removed in WTForms 3.0)</li>
+<li><code>TextAreaField</code></li>
 </ul>
-<p>Still unsupported:</p>
+<p>Unsupported:</p>
 <ul>
 <li><code>Field</code></li>
 <li><code>FieldList</code></li>
@@ -173,12 +173,8 @@
 <li><code>FormField</code></li>
 <li><code>HiddenField</code></li>
 <li><code>PasswordField</code></li>
-<li><code>RadioField</code></li>
 <li><code>SelectFieldBase</code></li>
-<li><code>SelectMultipleField</code></li>
 <li><code>SubmitField</code></li>
-<li><code>TextAreaField</code></li>
-<li><code>TextField</code></li>
 </ul>
 <p>These field take a series of <strong>arguments</strong>. Here is a list of the field arguments supported so far:</p>
 <ul>
@@ -194,14 +190,6 @@
 <li><code>Optional</code></li>
 <li><code>Regexp</code></li>
 </ul>
-<p>&nbsp;</p>
-<h4 id="json-schema-to-django-form">JSON Schema to Django Form</h4>
-<p>&nbsp;</p>
-<p><strong>TODO</strong></p>
-<p>&nbsp;</p>
-<h4 id="json-schema-to-wtform">JSON Schema to WTForm</h4>
-<p>&nbsp;</p>
-<p><strong>TODO</strong></p>
 </div>
         </div>
 

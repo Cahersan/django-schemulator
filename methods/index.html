@@ -100,11 +100,13 @@
         
             <li><a href="#form_to_schemaform">form_to_schema(form)</a></li>
         
+            <li><a href="#schema_to_formschema-form_typenone">schema_to_form(schema, form_type=None)</a></li>
+        
             <li><a href="#schema_to_wtfieldschema">schema_to_wtfield(schema)</a></li>
         
             <li><a href="#schema_to_fieldschema">schema_to_field(schema)</a></li>
         
-            <li><a href="#schema_to_formschema-form_typenone">schema_to_form(schema, form_type=None)</a></li>
+            <li><a href="#special-json-schema-keywords">Special JSON Schema Keywords</a></li>
         
     
     </ul>
@@ -113,11 +115,13 @@
 
 <h1 id="methods">Methods</h1>
 <p><strong>django-schemulator</strong> provides the following methods:</p>
-<h3 id="wtfield_to_schemafield"><code>wtfield_to_schema(field)</code></h3>
+<h4 id="wtfield_to_schemafield"><code>wtfield_to_schema(field)</code></h4>
 <p>This method takes a WTForms field and returns a JSON schema (a dictionary).</p>
-<h3 id="field_to_schemafield"><code>field_to_schema(field)</code></h3>
+<p>&nbsp;</p>
+<h4 id="field_to_schemafield"><code>field_to_schema(field)</code></h4>
 <p>This method takes a Django Forms field and returns a JSON schema (a dictionary).</p>
-<h3 id="form_to_schemaform"><code>form_to_schema(form)</code></h3>
+<p>&nbsp;</p>
+<h4 id="form_to_schemaform"><code>form_to_schema(form)</code></h4>
 <p>This method takes a Django Form or a WTForms and returns a JSON schema (a dictionary).
 Internally, it analyzes the fields that the form contains and uses one of the previous 
 methods to provide the JSON schema representation.</p>
@@ -206,12 +210,57 @@ methods to provide the JSON schema representation.</p>
            'type': 'string'}},
 }
 </code></pre>
-<h3 id="schema_to_wtfieldschema"><code>schema_to_wtfield(schema)</code></h3>
-<p><strong>TODO</strong></p>
-<h3 id="schema_to_fieldschema"><code>schema_to_field(schema)</code></h3>
-<p><strong>TODO</strong></p>
-<h3 id="schema_to_formschema-form_typenone"><code>schema_to_form(schema, form_type=None)</code></h3>
-<p><strong>TODO</strong></p>
+<p>&nbsp;</p>
+<h4 id="schema_to_formschema-form_typenone"><code>schema_to_form(schema, form_type=None)</code></h4>
+<p>This method takes a dictionary with a valid JSON Schema syntax and returns a form.
+By default, the form returned is a Django Form, but by setting the<code>form_type</code> 
+argument to <code>wtforms</code> the output is a WTForm.</p>
+<p>&nbsp;</p>
+<h4 id="schema_to_wtfieldschema"><code>schema_to_wtfield(schema)</code></h4>
+<p>This method is used by the<code>schema_to_form()</code> method to dynamically generate the
+fields within the returned form. It takes a dictionary with a valid JSON Schema syntax describing a field
+and returns an WTForms <code>UnboundField</code> instance.</p>
+<p>If you where to use it independently, you may bind the field to a form by setting it as an
+attribute of a WTForms form before instatination, via <code>setattr</code>.</p>
+<p>&nbsp;</p>
+<h4 id="schema_to_fieldschema"><code>schema_to_field(schema)</code></h4>
+<p>This method is used by the<code>schema_to_form()</code> method to dynamically generate the
+fields within the returned form. It takes a dictionary with a valid JSON Schema syntax describing a field
+and returns an Django Forms field instance.</p>
+<p>&nbsp;</p>
+<h2 id="special-json-schema-keywords">Special JSON Schema Keywords</h2>
+<p><strong>django-schemulator</strong> recognizes three special keywords within a JSON Schema
+representation of a form. These can be provided to explicitly indicate which field
+classes and widgets should be used within the forms. These should be the name of
+the form or widget class.</p>
+<ul>
+<li>
+<p><code>__django_form_field_cls</code></p>
+<p>The Django forms field class to be used.</p>
+</li>
+<li>
+<p><code>__wtforms_field_cls</code></p>
+<p>The WTForms field class to be used.</p>
+</li>
+<li>
+<p><code>__widget</code></p>
+<p>The Django forms or WTforms widget class to be used.</p>
+</li>
+</ul>
+<p><strong>Example</strong>:</p>
+<p>The following JSON Schema describes a Django forms <code>CharField</code> with a <code>Textarea</code> widget instead
+of the default <code>TextInput</code> widget.</p>
+<pre class="prettyprint well"><code>{
+'__django_form_field_cls': 'CharField', 
+'__widget': 'Textarea',
+'type': 'string',
+'title': 'Text Area Field',
+'description': 'This is a text area field',
+'minLength': 0, 
+'maxLength': 200,
+'optional': False,
+}
+</code></pre>
 </div>
         </div>
 
