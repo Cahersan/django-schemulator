@@ -1,4 +1,4 @@
--e git+https://github.com/Cahersan/json-document
--e git+https://github.com/Cahersan/json-schema-toolkit
+-e git+https://github.com/Cahersan/json-document#egg=json_document-master
+-e git+https://github.com/Cahersan/json-schema-toolkit#egg=json_schema_toolkit-master
 jsonschema==2.3.0
 wtforms
