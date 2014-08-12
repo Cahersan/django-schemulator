@@ -1,4 +1,5 @@
--e git+https://github.com/Cahersan/json-document#egg=json_document-master
--e git+https://github.com/Cahersan/json-schema-toolkit#egg=json_schema_toolkit-master
+django==1.6.5
+-e git+https://github.com/Cahersan/json-document#egg=json_document
+-e git+https://github.com/Cahersan/json-schema-toolkit#egg=json_schema_toolkit
 jsonschema==2.3.0
 wtforms
