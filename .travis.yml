@@ -1,0 +1,8 @@
+language: python
+
+env:
+    - $TOX_ENV=py27
+install:
+    - pip install tox
+script:
+    - tox -e $TOX_ENV
