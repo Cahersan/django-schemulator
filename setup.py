@@ -18,7 +18,7 @@ setup(
     packages=['schemulator'],
     include_package_data=True,
     install_requires=reqs,    
-    license='',
+    license='BSD',
     description='Generate JSONSchema representations from Django forms',
     long_description=README,
     url='https://github.com/Cahersan/django-schemulator',
@@ -28,7 +28,7 @@ setup(
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License', # example license
+        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         # Replace these appropriately if you are stuck on Python 2.
